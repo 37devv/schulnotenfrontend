@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -8,57 +8,115 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
+import { Button } from '@mui/material';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function BasicTable() {
 
-    useEffect(() => {
+  const [tableData, setTableData] = useState([]);
+  const [subject, setSubject] = useState();
+  const [mark, setMark] = useState();
+
+  //Load initial data to be displayed
+    useEffect(() => {    
         fetch("https://localhost:7156/grades")
             .then((response) => response.json())
             .then((data) => console.log(data));
 
-    });
+            fetch("https://localhost:7156/grades")
+            .then((response) => response.json())
+            .then((data) => setTableData(data));
+    }, []);
+
+
+  const handleMarkChange = event => {
+        setMark(event.target.value);
+    };
+
+    const handleSubjectChange = event => {
+        setSubject(event.target.value);
+    };
+
+  const addMark = async () => {
+    console.log(mark + subject);
+
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+          { 
+            subject: subject,
+            mark: mark
+          }
+        )
+    };
+    await fetch('https://localhost:7156/grades/', requestOptions);
+
+    window.location.reload(true);
+  }
+
+  const deleteMark = async (gradeId) => {
+    console.info(gradeId);
+    
+    await fetch("https://localhost:7156/grades/" + gradeId, {method: 'DELETE'});
+
+    //Reload page to retrieve new data
+    window.location.reload(true);
+  }
+
 
   return (
+    <React.Fragment>
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>Dessert (100g serving)</TableCell>
-            <TableCell align="right">Calories</TableCell>
-            <TableCell align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell>
+            <TableCell align="left">Grade ID</TableCell>
+            <TableCell align="right">Fach</TableCell>
+            <TableCell align="right">Note</TableCell>
+            <TableCell>Löschen</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+
+          {
+          tableData.map((data) => (
             <TableRow
-              key={row.name}
+              key={data.gradeId}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-              <TableCell component="th" scope="row">
-                {row.name}
+              <TableCell align="left">{data.gradeId}</TableCell>
+              <TableCell align="right">{data.subject}</TableCell>
+              <TableCell align="right">{data.mark}</TableCell>
+              <TableCell>
+                <Button variant="outlined" startIcon={<DeleteIcon />} onClick={() => deleteMark(data.gradeId)}>
+                  Delete
+                </Button>
               </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
+
+
+    <Box
+      component="form"
+      sx={{
+        '& > :not(style)': { m: 1, width: '25ch' },
+      }}
+      noValidate
+      autoComplete="off"
+    >
+      <br/>
+      <TextField id="standard-basic" label="Fach" variant="standard" onChange={handleSubjectChange}/>
+      <TextField id="standard-basic" label="Note" variant="standard" onChange={handleMarkChange}/>
+      <br/>
+      <Button variant="contained" color="success" onClick={addMark} >Note hinzufügen</Button>
+    </Box>
+
+    </React.Fragment>
   );
 }
