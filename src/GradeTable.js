@@ -40,7 +40,6 @@ export default function BasicTable() {
     };
 
   const addMark = async () => {
-    console.log(mark + subject);
 
     const requestOptions = {
         method: 'POST',
@@ -58,7 +57,6 @@ export default function BasicTable() {
   }
 
   const deleteMark = async (gradeId) => {
-    console.info(gradeId);
     
     await fetch("https://localhost:7156/grades/" + gradeId, {method: 'DELETE'});
 
