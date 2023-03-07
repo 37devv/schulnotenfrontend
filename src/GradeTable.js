@@ -19,13 +19,16 @@ export default function BasicTable() {
   const [subject, setSubject] = useState();
   const [mark, setMark] = useState();
 
+  const BASEURL = process.env.REACT_APP_BACKEND_URL;
+
+
   //Load initial data to be displayed
     useEffect(() => {    
-        fetch("https://localhost:7156/grades")
+        fetch(BASEURL + "grades")
             .then((response) => response.json())
             .then((data) => console.log(data));
-
-            fetch("https://localhost:7156/grades")
+            
+            fetch(BASEURL + "grades")
             .then((response) => response.json())
             .then((data) => setTableData(data));
     }, []);
@@ -51,14 +54,14 @@ export default function BasicTable() {
           }
         )
     };
-    await fetch('https://localhost:7156/grades/', requestOptions);
+    await fetch(BASEURL+'grades/', requestOptions);
 
     window.location.reload(true);
   }
 
   const deleteMark = async (gradeId) => {
     
-    await fetch("https://localhost:7156/grades/" + gradeId, {method: 'DELETE'});
+    await fetch(BASEURL+"grades/" + gradeId, {method: 'DELETE'});
 
     //Reload page to retrieve new data
     window.location.reload(true);
@@ -70,7 +73,7 @@ export default function BasicTable() {
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
-          <TableRow>
+          <TableRow style={{backgroundColor:'#add8e6'}}>
             <TableCell align="left">Grade ID</TableCell>
             <TableCell align="right">Fach</TableCell>
             <TableCell align="right">Note</TableCell>
@@ -80,6 +83,7 @@ export default function BasicTable() {
         <TableBody>
 
           {
+            
           tableData.map((data) => (
             <TableRow
               key={data.gradeId}
