@@ -26,7 +26,10 @@ export default function BasicTable() {
     useEffect(() => {    
         fetch(BASEURL + "grades")
             .then((response) => response.json())
-            .then((data) => console.log(data));
+            .then((data) => console.log(data))
+            .catch(err => {
+              console.log(err);
+            });
             
             fetch(BASEURL + "grades")
             .then((response) => response.json())
